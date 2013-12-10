@@ -15,7 +15,7 @@ Item {
             id: text_title
             anchors { verticalCenter: parent.verticalCenter; left: image_logo.right; leftMargin: 5 }
             font { pixelSize: 16 }
-            text: qsTr("HTC Bootloader Unlock")
+            text: qsTr("Sony Bootloader Unlock")
         }
         Text {
             id: text_version
