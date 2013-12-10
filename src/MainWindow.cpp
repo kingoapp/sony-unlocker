@@ -28,7 +28,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::init()
 {
-    setWindowTitle(tr("HTC Bootloader Unlock"));
+    setWindowTitle(tr("Sony Bootloader Unlock"));
     setWindowFlags(Qt::WindowCloseButtonHint | Qt::WindowMinimizeButtonHint);
     setStyleSheet("background-color:transparent");
     setWindowFlags(Qt::FramelessWindowHint | Qt::Window);

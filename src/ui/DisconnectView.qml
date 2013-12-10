@@ -20,7 +20,7 @@ Rectangle {
 				anchors.verticalCenter: parent.verticalCenter
 				spacing: 8
 				Text {
-					text: qsTr("HTC Bootloader Unlocker")
+					text: qsTr("Sony Bootloader Unlocker")
 					font { pixelSize: 18; bold: true }
 				}
 				Text {
@@ -60,7 +60,7 @@ Rectangle {
 				height: column_msg.height
 				spacing: 10
 				Text {
-					text: qsTr("Cannot connect to HTC Bootloader Unlocker")
+					text: qsTr("Cannot connect to Sony Bootloader Unlocker")
 					font { pixelSize: 12 }
 				}
 			}

@@ -6,8 +6,13 @@ Rectangle {
     width: 800; height: 220
 	color: "#f9f9f9"
 	property variant deviceInfo: {}
-	property int getTokenBinTryCount: 20
+	property int getUnlockBinTryCount: 20
 	property string token
+
+	function isUnlockState () {
+		var ret = fastboot.rawCommand(['oem', 'unlock', '0xFFFFFFFFFFFFFFFF']);
+		return ret.search(/already unlocked/i) >= 0 || ret.search(/OKAY/i) >= 0;
+	}
 
 	function setStep (step, state) {
 		if (loader.state == "unlock")
@@ -31,36 +36,31 @@ Rectangle {
 		}
 	}
 
-	function getTokenBin () {
+	function getUnlockBin () {
     	var request = new XMLHttpRequest();
         request.onreadystatechange = function() {
             if (request.readyState == XMLHttpRequest.DONE) {
                 console.log("-----------------------------------");
                 console.log(request.responseText);
                 console.log("-----------------------------------");
-                var info = {};
                 if (request.responseText.length > 0)
-                	eval("info=" + request.responseText);
-                if (info.unlockbin != null && info.unlockbin.length > 0) {
                 	setStep(3, "success");
                 	setStep(4, "start");
-                	var unlockBinFile = util.storageLocation(7) + "/Unlock_code.bin";
-                	util.saveBufferFromBase64(unlockBinFile, info.unlockbin);
-                	if (fastboot.flash("unlocktoken", unlockBinFile)) {
+                	var ret = fastboot.rawCommand(['-i', '0x0fce', 'oem', 'unlock', "0x" + request.responseText]);
+                	if (ret.search(/fail/i) < 0) {
                 		setStep(4, "success");
                 		text_progress_message.text = qsTr("Successed!");
                 	}
                 	else {
                 		setStep(4, "failed");
                 	}
-                	util.removeFile(unlockBinFile);
                 	deviceChecker.enableCheckDevice(true);
 					button_finish.enabled = true;
                 }
                 else {
                     progressbar.progress += 1/60;
-                	unlockview.getTokenBinTryCount--;
-                	if (unlockview.getTokenBinTryCount > 0) {
+                	unlockview.getUnlockBinTryCount--;
+                	if (unlockview.getUnlockBinTryCount > 0) {
 	            		timer.start();
 	            	}
 	            	else {
@@ -72,12 +72,11 @@ Rectangle {
             }
         }
 
-        request.open("POST","https://unlocker.kingoapp.com/api/htcunlock", true);
-        console.log("https request htc unlock bin");
+        request.open("POST","https://unlocker.kingoapp.com/api/sonyunlock", true);
+        console.log("https request sony unlock bin");
     	request.send(
     		"imei=" + unlockview.deviceInfo.imei 
     		+ "&sn=" + unlockview.deviceInfo.serialno
-    		+ "&token=" + unlockview.token
     		+ "&key=" + "test_key"
     		);
 	}
@@ -89,13 +88,17 @@ Rectangle {
 			setStep(1, "success");
 			setStep(2, "start");
 			deviceChecker.waitForDevice();
+			if (isUnlockState()) {
+				setStep(4, "success");
+        		text_progress_message.text = qsTr("Successed!");
+        		return;
+			}
         	unlockview.deviceInfo = fastboot.getAllVar();
-			unlockview.token = fastboot.htcGetIdentifierToken();
-			if (unlockview.token.length > 0) {
+        	if (typeof(unlockview.deviceInfo.imei) != "undefined") {
 				setStep(2, "success");
 				setStep(3, "start");
-				getTokenBin();
-			}
+				getUnlockBin();
+        	}
 			else {
 				setStep(2, "failed");
 			}
@@ -110,6 +113,11 @@ Rectangle {
 		if (adb.reboot("bootloader")) {
 			deviceChecker.waitForDevice();
 			setStep(1, "success");
+			if (!isUnlockState()) {
+				setStep(2, "success");
+				text_progress_message.text = qsTr("Successed!");
+        		return;
+			}
 			if (fastboot.relock()) {
 				setStep(2, "success");
 				text_progress_message.text = qsTr("Successed!");
@@ -129,7 +137,7 @@ Rectangle {
 		id: timer
 		interval: 10000
 		onTriggered: {
-			getTokenBin();
+			getUnlockBin();
 		}
 	}
 	Item {
@@ -176,7 +184,7 @@ Rectangle {
                 // step 2
 	            Text { 
 	            	id: text_step_2
-	            	text: loader.state == "unlock" ? qsTr("Fetching Unlock Token") : qsTr("Locking Again")
+	            	text: loader.state == "unlock" ? qsTr("Fetching Unlock Data") : qsTr("Locking Again")
                     color: loader.state == "unlock" ? (progressbar.progress >= 1/3 ? "#5CB210" : "dimgray") : (progressbar.progress >= 1 ? "#5CB210" : "dimgray")
 	                font.pixelSize: 14; smooth: true
                     x: (loader.state == "unlock" ? progressbar.width / 3 : progressbar.width) - width / 2
@@ -192,7 +200,7 @@ Rectangle {
                 // step 3
 	            Text { 
 	            	id: text_step_3
-                    text: qsTr("Fetching Unlock Bin"); color: progressbar.progress >= 2/3 ? "#5CB210" : "dimgray"
+                    text: qsTr("Fetching Unlock Code"); color: progressbar.progress >= 2/3 ? "#5CB210" : "dimgray"
 	                font.pixelSize: 14; smooth: true
                     x: progressbar.width * 2/3 - width / 2
 	                visible: loader.state == "unlock"
