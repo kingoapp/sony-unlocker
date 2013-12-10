@@ -89,8 +89,9 @@ Rectangle {
 		deviceChecker.enableCheckDevice(false);
 		setStep(1, "start");
 		var devicetype = getDeviceType();
+		console.log(devicetype);
 		var noSupportList = ["C6602", "C6603", "L36h", "XPERIA Z", "Xperia Z (C6603)", "XperiaZ", "yuga"];
-		for (int i = 0; i < noSupportList.length; i++) {
+		for (var i = 0; i < noSupportList.length; i++) {
 			if (devicetype.indexOf(noSupportList) >= 0) {
 				setStep(4, "failed");
         		text_progress_message.text = qsTr("Don't support device!");
