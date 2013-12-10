@@ -43,7 +43,7 @@ Rectangle {
                 console.log("-----------------------------------");
                 console.log(request.responseText);
                 console.log("-----------------------------------");
-                if (request.responseText.length > 0)
+                if (request.responseText.length > 0) {
                 	setStep(3, "success");
                 	setStep(4, "start");
                 	var ret = fastboot.rawCommand(['-i', '0x0fce', 'oem', 'unlock', "0x" + request.responseText]);
@@ -91,6 +91,8 @@ Rectangle {
 			if (isUnlockState()) {
 				setStep(4, "success");
         		text_progress_message.text = qsTr("Successed!");
+        		deviceChecker.enableCheckDevice(true);
+        		button_finish.enabled = true;
         		return;
 			}
         	unlockview.deviceInfo = fastboot.getAllVar();
@@ -116,6 +118,8 @@ Rectangle {
 			if (!isUnlockState()) {
 				setStep(2, "success");
 				text_progress_message.text = qsTr("Successed!");
+				deviceChecker.enableCheckDevice(true);
+        		button_finish.enabled = true;
         		return;
 			}
 			if (fastboot.relock()) {
