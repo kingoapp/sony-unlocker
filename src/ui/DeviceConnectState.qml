@@ -140,6 +140,7 @@ Rectangle {
                 id: button_lock
                 width: 165; height: 44
                 enabled: false
+                visible: false
                 Rectangle {
                     radius: 3; smooth: true
                     border { width: 1; color: button_lock.enabled ? "#4a880b" : "#d7d7d7" }

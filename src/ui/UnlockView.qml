@@ -14,6 +14,10 @@ Rectangle {
 		return ret.search(/already unlocked/i) >= 0 || ret.search(/OKAY/i) >= 0;
 	}
 
+	function getDeviceType () {
+		return adb.shell("getprop ro.product.device");
+	}
+
 	function setStep (step, state) {
 		if (loader.state == "unlock")
             progressbar.progress = (step - 1) / 3;
@@ -84,6 +88,17 @@ Rectangle {
 	function unlock() {
 		deviceChecker.enableCheckDevice(false);
 		setStep(1, "start");
+		var devicetype = getDeviceType();
+		var noSupportList = ["C6602", "C6603", "L36h", "XPERIA Z", "Xperia Z (C6603)", "XperiaZ", "yuga"];
+		for (int i = 0; i < noSupportList.length; i++) {
+			if (devicetype.indexOf(noSupportList) >= 0) {
+				setStep(4, "failed");
+        		text_progress_message.text = qsTr("Don't support device!");
+        		deviceChecker.enableCheckDevice(true);
+        		button_finish.enabled = true;
+        		return;
+			}
+		}
 		if (adb.reboot("bootloader")) {
 			setStep(1, "success");
 			setStep(2, "start");
