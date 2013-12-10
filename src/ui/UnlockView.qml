@@ -49,7 +49,7 @@ Rectangle {
                 	var ret = fastboot.rawCommand(['-i', '0x0fce', 'oem', 'unlock', "0x" + request.responseText]);
                 	if (ret.search(/fail/i) < 0) {
                 		setStep(4, "success");
-                		text_progress_message.text = qsTr("Successed!");
+                		text_progress_message.text = qsTr("Follow the prompt on your device to complete unclock.");
                 	}
                 	else {
                 		setStep(4, "failed");
