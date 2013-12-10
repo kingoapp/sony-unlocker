@@ -1,4 +1,4 @@
-htc-unlocker
+Sony-unlocker
 ============
 
-HTC one click unlock boot loader 
+Sony one click unlock bootloader 
